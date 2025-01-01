@@ -1,0 +1,21 @@
+{
+  "name": "COGITO Test",
+  "short_name": "COGITO",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f4f4f4",
+  "theme_color": "#6b579c",
+  "description": "Explore the potential of a committed relationship with COGITO.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

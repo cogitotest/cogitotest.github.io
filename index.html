@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#6b579c" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>COGITO Test</title>
+  <!-- Link the PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #6b579c;
+      color: #fff;
+      padding: 1rem;
+    }
+    .language-selector {
+      background-color: #fff;
+      color: #333;
+      padding: 0.25rem;
+      border-radius: 4px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    main {
+      width: 90%;
+      max-width: 1000px;
+      margin: 1rem auto;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    section {
+      display: none;
+      margin-bottom: 1rem;
+    }
+    section.active {
+      display: block;
+    }
+    button[type="button"],
+    button[type="submit"] {
+      border: none;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 1rem;
+      color: #fff;
+    }
+    button[type="submit"] {
+      background-color: #4CAF50;
+      align-self: flex-end;
+    }
+    button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+    button[type="button"] {
+      background-color: #6b579c;
+    }
+    button[type="button"]:hover {
+      background-color: #6b659c;
+    }
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+    input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 20px;
+      border-radius: 10px;
+      background: #d3d3d3;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #6b579c;
+      border-radius: 50%;
+      border: 1px solid #999;
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #6b579c;
+      border-radius: 50%;
+      border: 1px solid #999;
+      cursor: pointer;
+    }
+    input[type="number"] {
+      font-size: 0.9rem;
+      padding: 0.3rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      width: 60px;
+    }
+    textarea {
+      width: 100%;
+      font-size: 0.9rem;
+      padding: 0.3rem;
+      margin-bottom: 0.3rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      vertical-align: middle;
+      text-align: left;
+    }
+    #weightError {
+      color: red;
+      display: none;
+    }
+    #pointsUsed {
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+    #resultSection h2 {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+    #resultMessage {
+      font-weight: bold;
+      font-size: 1.5rem;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+    #backToQuestions {
+      position: relative;
+      bottom: -20px;
+    }
+    @media (max-width: 600px) {
+      main {
+        padding: 0.5rem;
+      }
+      .slider-group {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+      thead tr {
+        display: none;
+      }
+      tbody tr {
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 0.5rem;
+      }
+      td {
+        display: flex;
+        flex-direction: column;
+        border: none;
+        margin-bottom: 0.5rem;
+      }
+      /* Remove these if you want labels inside each row in mobile view */
+      td:nth-child(1)::before { content: ""; }
+      td:nth-child(2)::before { content: ""; font-weight: bold; margin-bottom: 0.2rem; }
+      td:nth-child(3)::before { content: ""; font-weight: bold; margin-bottom: 0.2rem; }
+
+      button {
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+      #backToQuestions {
+        bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="appTitle">COGITO Test</h1>
+    <select class="language-selector" id="languageSelector">
+      <option value="en">English</option>
+      <option value="he">Hebrew</option>
+      <option value="ru">Russian</option>
+      <option value="fr">French</option>
+      <option value="ar">Arabic</option>
+    </select>
+  </header>
+
+  <main>
+    <form id="scoreForm">
+      <!-- Intro Section -->
+      <section class="active" id="introSection">
+        <p id="introPara1">Do you want to know if your potential spouse meets your expectations?</p>
+        <p id="introPara2">COGITO helps you explore the potential of a committed relationship.</p>
+        <label id="desiredScoreLabel" for="desiredScore">Please set your desired spouse score:</label>
+        <div class="slider-group">
+          <input
+            type="range"
+            id="desiredScore"
+            name="desiredScore"
+            min="50"
+            max="100"
+            value="75"
+            required
+            oninput="document.getElementById('desiredScoreNumber').value = this.value;"
+          />
+          <input
+            type="number"
+            id="desiredScoreNumber"
+            min="50"
+            max="100"
+            value="75"
+            oninput="document.getElementById('desiredScore').value = this.value;"
+          />
+        </div>
+        <button type="button" id="nextToQuestions">Next</button>
+      </section>
+
+      <!-- Questions Section -->
+      <section id="questionsSection">
+        <p id="questionsIntro">Rate each question's importance (total must be 100). Then rate your spouse:</p>
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th id="colImportance">Importance</th>
+              <th id="colSpouseScore">Spouse Score</th>
+            </tr>
+          </thead>
+          <tbody id="questionContainer"></tbody>
+        </table>
+        <p id="weightError">Total importance must be 100.</p>
+        <p id="pointsUsed">Importance points used: <span id="totalPoints">0</span>/100</p>
+        <button type="button" id="backToIntro">Back</button>
+        <button type="submit" id="btnCalculate">Calculate</button>
+      </section>
+
+      <!-- Result Section -->
+      <section id="resultSection">
+        <h2 id="resultTitle">Result</h2>
+        <p id="resultMessage"></p>
+        <button type="button" id="backToQuestions">Back</button>
+      </section>
+    </form>
+  </main>
+
+  <!-- Register Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
+  </script>
+
+  <script>
+    // Translation data
+    const translations = {
+      en: {
+        appTitle: "COGITO Test",
+        introPara1: "Do you want to know if your potential spouse meets your expectations?",
+        introPara2: "COGITO helps you explore the potential of a committed relationship.",
+        desiredScoreLabel: "Please set your desired spouse score:",
+        btnNext: "Next",
+        questionsIntro: "Rate each question's importance (total must be 100). Then rate your spouse:",
+        colImportance: "Importance",
+        colSpouseScore: "Spouse Score",
+        weightError: "Total importance must be 100.",
+        pointsUsed: "Importance points used:",
+        btnBackToIntro: "Back",
+        btnCalculate: "Calculate",
+        resultTitle: "Result",
+        goodMatch: "Good match",
+        reEval: "Re-evaluation advised",
+        btnBackToQuestions: "Back",
+        questions: [
+          "Do I feel love for her/him?",
+          "Do I trust her/him to understand and care about me ('see me')?",
+          "Do I trust the stability of her/his feelings towards me over time?",
+          "Do I trust her/his emotional stability in general?",
+          "Do I trust her/his ability to earn a decent living?",
+          "Do I trust her/him with involvement in raising the children?",
+          "Is it enjoyable for me to be in her/his company?",
+          "Do I trust her/his independent judgment in making decisions?",
+          "Does she/he have a positive outlook on life?",
+          "How important is the level of trust between us? - Feel free to enter your own question or stick with the default"
+        ]
+      },
+      he: {
+        appTitle: "מבחן COGITO",
+        introPara1: "האם תרצה לדעת אם בן/בת הזוג הפוטנציאליים עונים על הציפיות שלך?",
+        introPara2: "COGITO עוזר לך לחקור את פוטנציאל הקשר המחייב.",
+        desiredScoreLabel: "קבע/י את הציון הרצוי לבן/בת הזוג:",
+        btnNext: "הבא",
+        questionsIntro: "דרג/י את החשיבות של כל שאלה (בסך הכל 100). ואז דרג/י את בן/בת הזוג:",
+        colImportance: "חשיבות",
+        colSpouseScore: "ציון",
+        weightError: "סך הכל חייב להיות 100.",
+        pointsUsed: "נקודות חשיבות בשימוש:",
+        btnBackToIntro: "חזור",
+        btnCalculate: "חשב",
+        resultTitle: "תוצאה",
+        goodMatch: "התאמה טובה",
+        reEval: "מומלץ הערכה מחודשת",
+        btnBackToQuestions: "חזור",
+        questions: [
+          "האם אני מרגיש אהבה כלפיה/כלפיו?",
+          "האם אני סומך עליה/עליו שתבין ותדאג לי?",
+          "האם אני סומך על יציבות הרגשות שלה/שלו כלפיי לאורך זמן?",
+          "האם אני סומך על היציבות הרגשית שלה/שלו באופן כללי?",
+          "האם אני סומך על היכולת שלה/שלו להרוויח לפרנסה בכבוד?",
+          "האם אני סומך עליה/עליו שתטפל/יטפל בילדים?",
+          "האם אני נהנה מחברתה/חברתו?",
+          "האם אני סומך על שיקול דעתה/דעתו העצמאי בקבלת החלטות?",
+          "האם יש לה/לו גישה חיובית לחיים?",
+          "עד כמה חשוב לך מפלס האמון בינינו? - מוזמן/ת להחליף לשאלה אחרת או להשאיר"
+        ]
+      },
+      ru: {
+        appTitle: "Тест COGITO",
+        introPara1: "Хотите ли вы узнать, соответствует ли ваш потенциальный супруг вашим ожиданиям?",
+        introPara2: "COGITO помогает исследовать потенциал серьезных отношений.",
+        desiredScoreLabel: "Установите желаемый показатель супруга:",
+        btnNext: "Далее",
+        questionsIntro: "Оцените важность каждого вопроса (в сумме должно быть 100). Затем оцените супруга:",
+        colImportance: "Важность",
+        colSpouseScore: "Оценка супруга",
+        weightError: "Суммарная важность должна быть равна 100.",
+        pointsUsed: "Использовано очков важности:",
+        btnBackToIntro: "Назад",
+        btnCalculate: "Рассчитать",
+        resultTitle: "Результат",
+        goodMatch: "Подходите друг другу",
+        reEval: "Рекомендуется переоценка",
+        btnBackToQuestions: "Назад",
+        questions: [
+          "Чувствую ли я к ней/к нему любовь?",
+          "Доверяю ли я тому, что он/она понимает меня и заботится обо мне?",
+          "Уверен(а) ли я в стабильности его/ее чувств ко мне со временем?",
+          "Доверяю ли я его/ее эмоциональной стабильности в целом?",
+          "Доверяю ли я его/ее способности зарабатывать на жизнь?",
+          "Доверяю ли я ему/ей в воспитании детей?",
+          "Нравится ли мне проводить с ним/с ней время?",
+          "Доверяю ли я его/ее независимому суждению в принятии решений?",
+          "Есть ли у него/нее позитивный взгляд на жизнь?",
+          "Насколько важен уровень доверия между нами? - Можете заменить этот вопрос или оставить"
+        ]
+      },
+      fr: {
+        appTitle: "Test COGITO",
+        introPara1: "Voulez-vous savoir si votre conjoint potentiel répond à vos attentes ?",
+        introPara2: "COGITO vous aide à explorer le potentiel d'une relation engagée.",
+        desiredScoreLabel: "Veuillez définir le score souhaité pour votre conjoint :",
+        btnNext: "Suivant",
+        questionsIntro: "Évaluez l'importance de chaque question (le total doit être 100). Puis évaluez votre conjoint :",
+        colImportance: "Importance",
+        colSpouseScore: "Score du conjoint",
+        weightError: "Le total des importances doit être de 100.",
+        pointsUsed: "Points d'importance utilisés :",
+        btnBackToIntro: "Retour",
+        btnCalculate: "Calculer",
+        resultTitle: "Résultat",
+        goodMatch: "Bonne correspondance",
+        reEval: "Réévaluation conseillée",
+        btnBackToQuestions: "Retour",
+        questions: [
+          "Est-ce que je ressens de l'amour pour lui/elle ?",
+          "Ai-je confiance en lui/elle pour me comprendre et prendre soin de moi ?",
+          "Ai-je confiance en la stabilité de ses sentiments à mon égard au fil du temps ?",
+          "Ai-je confiance en sa stabilité émotionnelle de manière générale ?",
+          "Ai-je confiance en sa capacité à gagner correctement sa vie ?",
+          "Ai-je confiance en lui/elle pour s'occuper des enfants ?",
+          "Est-ce que j'apprécie passer du temps en sa compagnie ?",
+          "Ai-je confiance en son jugement indépendant lorsqu'il/elle prend des décisions ?",
+          "A-t-il/elle une vision positive de la vie ?",
+          "Quel degré d'importance accorde-t-on à la confiance entre nous ? - Vous pouvez personnaliser la question ou la conserver telle quelle"
+        ]
+      },
+      ar: {
+        appTitle: "اختبار COGITO",
+        introPara1: "هل تريد معرفة ما إذا كان شريكك المحتمل يلبّي توقعاتك؟",
+        introPara2: "يساعدك COGITO على استكشاف إمكانات العلاقة الملتزمة.",
+        desiredScoreLabel: "يرجى ضبط النتيجة المرغوبة لشريكك:",
+        btnNext: "التالي",
+        questionsIntro: "قم بتقييم أهمية كل سؤال (يجب أن يكون المجموع 100). ثم قم بتقييم شريكك:",
+        colImportance: "الأهمية",
+        colSpouseScore: "درجة الشريك",
+        weightError: "يجب أن يكون إجمالي الأهمية 100.",
+        pointsUsed: "النقاط المستخدمة من الأهمية:",
+        btnBackToIntro: "رجوع",
+        btnCalculate: "احسب",
+        resultTitle: "النتيجة",
+        goodMatch: "توافق جيد",
+        reEval: "يُنصح بإعادة التقييم",
+        btnBackToQuestions: "رجوع",
+        questions: [
+          "هل أشعر بالحب تجاهه/تجاهها؟",
+          "هل أثق أنه/أنها يفهمني ويهتم بي؟",
+          "هل أثق باستقرار مشاعره/مشاعرها تجاهي مع مرور الوقت؟",
+          "هل أثق باستقراره/استقرارها العاطفي بشكل عام؟",
+          "هل أثق بقدرته/قدرتها على كسب لقمة العيش؟",
+          "هل أثق أنه/أنها سيعتني/ستعتني بالأطفال؟",
+          "هل أستمتع بقضاء الوقت معه/معها؟",
+          "هل أثق بحكمه/حكمها المستقل عند اتخاذ القرارات؟",
+          "هل يتمتع/تتمتع بنظرة إيجابية نحو الحياة؟",
+          "ما مدى أهمية مستوى الثقة بيننا؟ - يمكنك تعديل هذا السؤال أو تركه كما هو"
+        ]
+      }
+    };
+
+    let questions = [];
+    let container;
+    let questionCount = 0;
+
+    // Switch language
+    function switchLanguage(lang) {
+      const t = translations[lang];
+
+      // Update text
+      document.getElementById("appTitle").textContent = t.appTitle;
+      document.getElementById("introPara1").textContent = t.introPara1;
+      document.getElementById("introPara2").textContent = t.introPara2;
+      document.getElementById("desiredScoreLabel").textContent = t.desiredScoreLabel;
+      document.getElementById("nextToQuestions").textContent = t.btnNext;
+      document.getElementById("questionsIntro").textContent = t.questionsIntro;
+      document.getElementById("colImportance").textContent = t.colImportance;
+      document.getElementById("colSpouseScore").textContent = t.colSpouseScore;
+      document.getElementById("weightError").textContent = t.weightError;
+      document.getElementById("pointsUsed").childNodes[0].nodeValue = t.pointsUsed + " ";
+      document.getElementById("backToIntro").textContent = t.btnBackToIntro;
+      document.getElementById("btnCalculate").textContent = t.btnCalculate;
+      document.getElementById("resultTitle").textContent = t.resultTitle;
+      document.getElementById("backToQuestions").textContent = t.btnBackToQuestions;
+
+      // Update question array
+      questions = [...t.questions];
+      questionCount = questions.length;
+
+      // Regenerate questions
+      regenerateQuestions();
+    }
+
+    function generateQuestions() {
+      container = document.getElementById('questionContainer');
+      let initialWeight = 10;
+      container.innerHTML = "";
+
+      questions.forEach((q, i) => {
+        const row = document.createElement('tr');
+        const questionCell = document.createElement('td');
+        if (i === questions.length - 1) {
+          questionCell.innerHTML = `<strong>${q}</strong><br>
+            <textarea name="customQuestion" rows="2">${q}</textarea>`;
+        } else {
+          questionCell.innerHTML = `<strong>${q}</strong>`;
+        }
+
+        const importanceCell = document.createElement('td');
+        importanceCell.innerHTML = `
+          <div class="slider-group">
+            <input
+              type="range"
+              id="weight${i + 1}"
+              name="weight${i + 1}"
+              min="5"
+              max="20"
+              value="${initialWeight}"
+              required
+              oninput="updatePoints(); document.getElementById('weightNum${i + 1}').value = this.value;"
+            />
+            <input
+              type="number"
+              id="weightNum${i + 1}"
+              min="5"
+              max="20"
+              value="${initialWeight}"
+              oninput="document.getElementById('weight${i + 1}').value = this.value; updatePoints();"
+            />
+          </div>`;
+
+        const spouseScoreCell = document.createElement('td');
+        spouseScoreCell.innerHTML = `
+          <div class="slider-group">
+            <input
+              type="range"
+              id="fulfillment${i + 1}"
+              name="fulfillment${i + 1}"
+              min="50"
+              max="100"
+              value="75"
+              required
+              oninput="document.getElementById('fulfillmentNum${i + 1}').value = this.value;"
+            />
+            <input
+              type="number"
+              id="fulfillmentNum${i + 1}"
+              min="50"
+              max="100"
+              value="75"
+              oninput="document.getElementById('fulfillment${i + 1}').value = this.value;"
+            />
+          </div>`;
+
+        row.appendChild(questionCell);
+        row.appendChild(importanceCell);
+        row.appendChild(spouseScoreCell);
+        container.appendChild(row);
+      });
+
+      updatePoints();
+    }
+
+    function regenerateQuestions() {
+      generateQuestions();
+    }
+
+    function updatePoints() {
+      const formData = new FormData(document.getElementById('scoreForm'));
+      let sum = 0;
+      for (let i = 1; i <= questionCount; i++) {
+        sum += parseFloat(formData.get(`weight${i}`)) || 0;
+      }
+      document.getElementById('totalPoints').innerText = sum;
+    }
+
+    function validateForm() {
+      const formData = new FormData(document.getElementById('scoreForm'));
+      let weightSum = 0;
+      for (let i = 1; i <= questionCount; i++) {
+        weightSum += parseFloat(formData.get(`weight${i}`)) || 0;
+      }
+      const weightError = document.getElementById('weightError');
+      weightError.style.display = weightSum === 100 ? 'none' : 'block';
+    }
+
+    function calculateScore() {
+      const formData = new FormData(document.getElementById('scoreForm'));
+      let totalScore = 0;
+      for (let i = 1; i <= questionCount; i++) {
+        const weight = parseFloat(formData.get(`weight${i}`)) || 0;
+        const fulfillment = parseFloat(formData.get(`fulfillment${i}`)) || 50;
+        totalScore += (weight * fulfillment);
+      }
+      const finalScore = totalScore / 100;
+      const desiredScore = parseFloat(formData.get('desiredScore'));
+
+      const currentLang = document.getElementById("languageSelector").value;
+      const { goodMatch, reEval } = translations[currentLang];
+      document.getElementById('resultMessage').innerText =
+        finalScore >= desiredScore ? goodMatch : reEval;
+
+      document.getElementById('resultSection').classList.add('active');
+      document.getElementById('questionsSection').classList.remove('active');
+    }
+
+    // Navigation
+    document.getElementById('nextToQuestions').addEventListener('click', () => {
+      document.getElementById('introSection').classList.remove('active');
+      document.getElementById('questionsSection').classList.add('active');
+    });
+    document.getElementById('backToIntro').addEventListener('click', () => {
+      document.getElementById('questionsSection').classList.remove('active');
+      document.getElementById('introSection').classList.add('active');
+    });
+    document.getElementById('backToQuestions').addEventListener('click', () => {
+      document.getElementById('resultSection').classList.remove('active');
+      document.getElementById('questionsSection').classList.add('active');
+    });
+
+    document.getElementById('scoreForm').addEventListener('input', validateForm);
+    document.getElementById('scoreForm').addEventListener('submit', event => {
+      event.preventDefault();
+      validateForm();
+      if (document.getElementById('weightError').style.display === 'none') {
+        calculateScore();
+      }
+    });
+
+    // Language selector
+    document.getElementById("languageSelector").addEventListener("change", (e) => {
+      switchLanguage(e.target.value);
+    });
+
+    // On load, use default language (English)
+    document.addEventListener("DOMContentLoaded", () => {
+      switchLanguage("en");
+    });
+  </script>
+</body>
+</html>
